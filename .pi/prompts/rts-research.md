@@ -1,32 +1,25 @@
-{{#if args}}
-Research and build site for: {{args}}
-{{else}}
-## /rts-research — deep research → teaching-forward Astro site
+---
+description: Full pipeline — deep research a topic, then build an illustrated Astro site
+---
+You are executing the /rts-research workflow command.
 
-**Synopsis:** `/rts-research <topic> [| deliver to: <dir>]`
+SYNOPSIS: /rts-research <topic> [| deliver to: <dir>]
+PIPELINE: three stages, run by the research-to-site orchestrator under a tmux-managed
+team lead: (1) deep research (minutes-scale; OKF docs + manifest.json into a run_ dir),
+(2) parallel teaching-forward SVG illustration per extracted concept, (3) fast Astro/bun
+site build. Observe live with `tmux attach -t <run_id>`.
+REQUIRES: `factory init research-to-site` done on this machine, `~/.deep-research-agent/.env`
+filled, `factory doctor` passing. If setup is incomplete, stop and tell the user what to fix.
+ON SUCCESS report: research dir ($DEEP_RESEARCH_WORKSPACE/<run_id>/), site path
+(.../site/dist/index.html), and the delivered path if `| deliver to:` was given.
+ON FAILURE point at: <worktree>/.worker.log, <worktree>/.status.json, the tmux session
+named <run_id>. A run whose site stage failed can be resumed with /rts-build-site.
 
-**What it does:** Runs the full three-stage pipeline via the research-to-site orchestrator:
-1. Deep research (deep-researcher) — minutes-scale; runs deep-research-agent headless and
-   emits OKF documents + manifest.json into a run_ dir.
-2. SVG illustration (svg-illustrator) — a parallel batch, one worker per extracted concept.
-3. Site build (site-builder) — fast Astro/bun/Vite build of a static site.
-The optional `| deliver to: <dir>` suffix copies the built site to `<dir>/<run_id>/`.
+Topic and options: ${@:-MISSING}
 
-**Required setup (run once per machine):**
-- `factory init research-to-site` — initializes the workspace git repo and installs the module.
-- Fill `~/.deep-research-agent/.env` with your infra endpoints and paths.
-- Verify with `factory doctor`. If it reports missing binaries/env, fix those before running.
+If the line above says "MISSING": do not run anything. Show the synopsis and one example
+(`/rts-research WebAssembly component model | deliver to: ~/sites`), then stop.
 
-**Success outputs:**
-- Research: `$DEEP_RESEARCH_WORKSPACE/<run_id>/` (OKF .md docs + manifest.json)
-- Site: `$DEEP_RESEARCH_WORKSPACE/<run_id>/site/dist/index.html`
-- Delivered (if requested): `<deliver_dir>/<run_id>/`
-
-**Failure diagnostics:**
-- Worker logs: `<worktree>/.worker.log`
-- Live session: `tmux attach -t <run_id>` (windows are named per worker)
-- Per-worker result: `<worktree>/.status.json`
-- If only the site stage failed, re-run `/rts-build-site` to pick that run up.
-
-Provide a topic to begin, e.g. `/rts-research WebAssembly component model | deliver to: ~/sites`.
-{{/if}}
+Otherwise spawn the research-to-site subagent with exactly this prompt:
+"Research and build site for: $@"
+Relay its progress and final report to the user.

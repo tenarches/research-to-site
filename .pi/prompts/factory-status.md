@@ -1,15 +1,13 @@
-## /factory-status — software factory status overview
+---
+description: Software factory status — runs, live sessions, installed modules
+---
+You are executing the /factory-status workflow command.
 
-**Synopsis:** `/factory-status`
-
-**What it does:** Read-only snapshot of recent runs, live pipeline sessions, and available
+SYNOPSIS: /factory-status
+WHAT IT DOES: read-only snapshot of recent runs, live pipeline sessions, and installed
 workflow modules. Fast; nothing is launched or modified.
-
-**Required setup:** `~/.deep-research-agent/.env` filled and `factory doctor` passing. If
-`runs.json` is missing there are simply no runs yet — start one with `/rts-research`.
-
-**Output:** concise status tables (see below). To act on what you find: `/rts-build-site`
-retries a run whose site stage failed; `tmux attach -t <run_id>` inspects a live session.
+TO ACT ON FINDINGS: /rts-build-site retries a run whose site stage failed;
+`tmux attach -t <run_id>` inspects a live session.
 
 Report the current status of the software factory:
 
@@ -20,8 +18,8 @@ Report the current status of the software factory:
    tmux list-sessions 2>/dev/null | grep -E '^(rts-|run_)'
    List any found with their windows and pane states.
 
-3. List available workflow modules by scanning for directories in the software-factory
-   root that contain .pi/subagents/ subdirectories. For each, show:
+3. List installed workflow modules: scan ~/.factory/modules/*/module.yaml (git-installed)
+   plus any module.yaml directories in the current project tree. For each, show:
    module_name | available_subagents | available_slash_commands
 
 Report as concise status tables. If any tmux sessions are running, note which workers

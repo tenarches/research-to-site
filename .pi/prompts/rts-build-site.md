@@ -1,31 +1,30 @@
-{{#if args}}
-site-builder: Build site for: {{args}}
-{{else}}
-## /rts-build-site — build (or rebuild) a site from an existing research run
+---
+description: Build (or rebuild) an Astro site from an existing research run
+---
+You are executing the /rts-build-site workflow command.
 
-**Synopsis:** `/rts-build-site [<run_dir>] [| deliver to: <dir>]`
+SYNOPSIS: /rts-build-site [<run_dir>] [| deliver to: <dir>]
+WHAT IT DOES: runs only the site-builder stage (fast — no research, no tmux team).
+This is NOT the command for a new research topic — that is /rts-research <topic>.
+REQUIRES: ~/.deep-research-agent/.env filled, `factory doctor` passing, and an existing
+research run containing manifest.json (a run without one needs /rts-research first).
+ON SUCCESS report: <run_dir>/site/dist/index.html, plus the delivered copy at
+<deliver_dir>/<run_id>/ if a deliver suffix or $FACTORY_DELIVER_DIR applies.
+ON FAILURE point at: <run_dir>/site build output, the site-builder .status.json, and
+`bun run build` errors. Re-running this command retries.
 
-**What it does:** Runs only the site-builder stage (fast — no research, no tmux team).
-- With a `<run_dir>` argument, it builds that run directly.
-- With no argument, it selects a run for you: it reads `~/.deep-research-agent/runs.json`
-  and picks the most recent run that does NOT yet have a `site/dist/index.html`. This is the
-  retry path when the site stage of a prior `/rts-research` failed.
+Target: ${@:-AUTO-SELECT}
 
-**Required setup:** `~/.deep-research-agent/.env` filled and `factory doctor` passing. If a
-run has no `manifest.json`, the site build cannot proceed — re-run `/rts-research` for it.
+If the Target above looks like a research topic (free text, not an existing directory
+path): do not build. Explain that /rts-build-site takes a run directory, and that a new
+topic starts with `/rts-research <topic>`. Offer to run that instead, then stop.
 
-**Success outputs:** `<run_dir>/site/dist/index.html`; delivered copy at `<deliver_dir>/<run_id>/`
-if a deliver suffix or `$FACTORY_DELIVER_DIR` is set.
+If the Target is "AUTO-SELECT": read ~/.deep-research-agent/runs.json and pick the most
+recent run that does NOT yet have a site/dist/index.html (the retry path for a failed
+site stage). Tell the user which run you selected and why before building. If every run
+already has a site, show a table of runs (run_id | topic | created_at) and ask which to
+rebuild. If runs.json is missing or empty, say so and suggest /rts-research.
 
-**Failure diagnostics:** check `<run_dir>/site/.worker.log`, the site-builder `.status.json`,
-and the `bun run build` output. Re-run this command to retry.
-
-Pending-run selection (no args):
-Read ~/.deep-research-agent/runs.json and find the most recent run that does NOT yet
-have a site/dist/index.html file. Then run: site-builder: Build site for: <that run_dir>
-
-If all runs already have a site built, display a table of available runs with their topics
-and creation times, and ask which one to rebuild.
-
-If runs.json does not exist or is empty, say so clearly.
-{{/if}}
+Otherwise, spawn the site-builder subagent with exactly this prompt:
+"Build site for: $@"
+Relay its progress and final report to the user.
