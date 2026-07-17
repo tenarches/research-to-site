@@ -1,0 +1,25 @@
+name: research-to-site
+version: "0.1"
+description: Deep research → teaching-forward Astro site
+provides:
+  subagents:
+    - .pi/subagents/deep-researcher.md
+    - .pi/subagents/svg-illustrator.md
+    - .pi/subagents/site-builder.md
+    - .pi/subagents/team-lead.md
+    - .pi/subagents/research-to-site.md
+  prompts:
+    - .pi/prompts/rts-research.md
+    - .pi/prompts/rts-build-site.md
+    - .pi/prompts/rts-list-runs.md
+    - .pi/prompts/factory-status.md
+requires:
+  binaries: [pi, tmux, bun, git, python3, node]
+  env: [DEEP_RESEARCH_AGENT_REPO, DEEP_RESEARCH_AGENT_BRANCH, DEEP_RESEARCH_AGENT_DIR, DEEP_RESEARCH_WORKSPACE, SEARXNG_URL, CRAWL4AI_URL, TIKA_URL, LLM_BASE_URL, LLM_MODEL, HYBRID_SEARCH_SKILL_DIR]
+  model: qwen3.6-35b-a3b
+runtime_skills:
+  - name: hybrid-web-search
+    source: ../work-in-progress/skills/hybrid-web-search
+    env_var: HYBRID_SEARCH_SKILL_DIR
+    setup: "npm ci"
+env_example: .env.example
